@@ -52,7 +52,7 @@ services:
       context: ./services/review-ui
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "8473:8473"
     volumes:
       - ./workspace:/app/workspace
       - ./game_assets:/app/game_assets

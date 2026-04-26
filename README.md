@@ -1,6 +1,6 @@
-# ArtPipe
+# Art Snipe
 
-ArtPipe takes a single gameplay mockup and produces a complete, organized set of 2D game-ready asset candidates. You sketch the screen once; the pipeline identifies every distinct asset, generates clean reference cutouts of each, produces multiple stylistically-consistent candidates per asset, lets you approve the ones you like in a local web UI, then auto-generates the missing UI states (hover, pressed, disabled, etc.) and exports everything in the right sizes to a folder your engine can import.
+Art Snipe takes a single gameplay mockup and produces a complete, organized set of 2D game-ready asset candidates. You sketch the screen once; the pipeline identifies every distinct asset, generates clean reference cutouts of each, produces multiple stylistically-consistent candidates per asset, lets you approve the ones you like in a local web UI, then auto-generates the missing UI states (hover, pressed, disabled, etc.) and exports everything in the right sizes to a folder your engine can import.
 
 ## Why this exists
 
@@ -10,19 +10,19 @@ The first asset pass for a 2D game is one of the most time-consuming and least-c
 - **DIY in Photoshop/Aseprite:** dozens of hours of repetitive manual work before you can even playtest the screen.
 - **Ad-hoc AI generation (ChatGPT, Midjourney, etc.):** every asset is a one-off conversation with no shared context — drift in style, no consistency in proportions or composition, no automation of variants, manual cropping/resizing/organizing for every single piece, and no record of how anything was made when you need to regenerate.
 
-ArtPipe collapses all of that into a single deterministic pipeline. You go from a rough mockup (even a hand-drawn one) to a folder of categorized, sized, transparent-background PNGs ready for your engine, in roughly the time it takes to drink a coffee. For a 30-asset screen with four state variants each (120 final files), the manual workflows above take 10–20 hours; ArtPipe takes about 30–45 minutes of mostly-unattended runtime plus 15 minutes of human review.
+Art Snipe collapses all of that into a single deterministic pipeline. You go from a rough mockup (even a hand-drawn one) to a folder of categorized, sized, transparent-background PNGs ready for your engine, in roughly the time it takes to drink a coffee. For a 30-asset screen with four state variants each (120 final files), the manual workflows above take 10–20 hours; Art Snipe takes about 30–45 minutes of mostly-unattended runtime plus 15 minutes of human review.
 
 ## Where it fits in game development
 
-ArtPipe is built for the parts of the workflow where speed and consistency matter more than artistic originality:
+Art Snipe is built for the parts of the workflow where speed and consistency matter more than artistic originality:
 
 - **Pre-production / style exploration.** Want to compare three different aesthetic directions for the same UI? Run the pipeline three times with different `style` hints. Compare them side-by-side in 90 minutes total instead of weeks of concept art.
 - **Production-quality placeholders.** Get assets that look real enough to playtest and demo with — far better than gray-box prototypes, without committing your artist's time.
 - **Iterating on game design.** When design changes mid-development (new card type, new enemy archetype, new UI panel), regenerate just the affected assets in the existing project style without breaking visual coherence.
-- **Game jams and prototypes.** Most of a 48-hour jam isn't spent on art. ArtPipe can hand you a coherent visual layer in the first hour so you can spend the rest on gameplay.
-- **Solo devs and small studios.** When you can't afford a full art team, ArtPipe gets you to a shippable visual standard for the 80% of assets that are functional UI/icons/states, so an actual artist's time can go toward the 20% that defines your game's look (key art, hero characters, signature visuals).
+- **Game jams and prototypes.** Most of a 48-hour jam isn't spent on art. Art Snipe can hand you a coherent visual layer in the first hour so you can spend the rest on gameplay.
+- **Solo devs and small studios.** When you can't afford a full art team, Art Snipe gets you to a shippable visual standard for the 80% of assets that are functional UI/icons/states, so an actual artist's time can go toward the 20% that defines your game's look (key art, hero characters, signature visuals).
 
-What it doesn't replace: a real art director, original IP design, or signature concept art. ArtPipe fills in the asset volume around a vision you've already sketched. The mockup you feed it is where the creative work happens; the pipeline turns that vision into deliverable files.
+What it doesn't replace: a real art director, original IP design, or signature concept art. Art Snipe fills in the asset volume around a vision you've already sketched. The mockup you feed it is where the creative work happens; the pipeline turns that vision into deliverable files.
 
 ## How it works
 
@@ -60,7 +60,7 @@ The pipeline is seven sequential steps. You start it with one command and a mock
 | | |
 |---|---|
 | **Input** | All the candidates from step 3 |
-| **Powered by** | A local web UI at `http://localhost:3000` |
+| **Powered by** | A local web UI at `http://localhost:8473` |
 | **What it does** | The web UI shows each asset alongside its reference cutout and three candidates. You click **Approve** on the one you like, or **Reject** on ones you don't want. Approving sets that candidate as the canonical "normal" state for that asset. Typical review time: ~15–30 minutes for a 30-asset screen. |
 | **Output** | `workspace/approved/<category>/<id>_normal.png` for each asset you approve |
 
@@ -128,7 +128,7 @@ That will:
 Then open the review UI:
 
 ```bash
-open http://localhost:3000
+open http://localhost:8473
 ```
 
 Click each asset, pick the candidate you like, hit **Approve**. Approved candidates land in `workspace/approved/`.
@@ -145,7 +145,7 @@ make export      # copy approved assets into game_assets/
 
 ```text
 asset_pipeline/         Python CLI orchestration code
-  artpipe/providers/    Pluggable vision + image gen providers
+  Art Snipe/providers/    Pluggable vision + image gen providers
 services/
   sam/                  Local SAM segmentation service (FastAPI)
   review-ui/            Local approve/reject web UI (FastAPI + Jinja2)
@@ -168,7 +168,7 @@ docs/                   Pipeline design notes
 | `make up` | Build images and start sam, rembg, and review-ui in the background |
 | `make down` | Stop all services |
 | `make logs` | Tail logs from all services |
-| `make shell` | Open a bash shell inside the artpipe-cli container |
+| `make shell` | Open a bash shell inside the Art Snipe-cli container |
 | `make run MOCKUP=...` | analyze + segment + generate end-to-end on one mockup |
 | `make analyze MOCKUP=...` | Just the analyze step |
 | `make manifest` | Validate the existing manifest |
@@ -184,18 +184,18 @@ docs/                   Pipeline design notes
 
 All configuration is via environment variables, set in `.env` or your shell. See `.env.example` for the complete list. The most useful overrides:
 
-- `ARTPIPE_IMAGE_QUALITY=low|medium|high` — image gen quality. Low is ~$0.011/image, medium ~$0.042, high ~$0.167. Default: medium.
-- `ARTPIPE_PROJECT_NAME=...` — project label written into the manifest.
-- `ARTPIPE_GEMINI_MODEL=gemini-2.5-flash` — switch to a different Gemini model (e.g. `gemini-2.5-pro`).
-- `ARTPIPE_SAM_MODEL=facebook/sam-vit-base` — swap in a larger SAM model (e.g. `facebook/sam-vit-large`).
+- `Art Snipe_IMAGE_QUALITY=low|medium|high` — image gen quality. Low is ~$0.011/image, medium ~$0.042, high ~$0.167. Default: medium.
+- `Art Snipe_PROJECT_NAME=...` — project label written into the manifest.
+- `Art Snipe_GEMINI_MODEL=gemini-2.5-flash` — switch to a different Gemini model (e.g. `gemini-2.5-pro`).
+- `Art Snipe_SAM_MODEL=facebook/sam-vit-base` — swap in a larger SAM model (e.g. `facebook/sam-vit-large`).
 
 ## Swapping Providers
 
-The pipeline talks to vision and image-gen providers through abstract interfaces in `asset_pipeline/artpipe/providers/`. To add (for example) a Claude vision provider:
+The pipeline talks to vision and image-gen providers through abstract interfaces in `asset_pipeline/Art Snipe/providers/`. To add (for example) a Claude vision provider:
 
-1. Create `asset_pipeline/artpipe/providers/vision/claude.py` implementing `VisionProvider`.
-2. Register it in `asset_pipeline/artpipe/providers/factory.py`.
-3. Set `ARTPIPE_VISION_PROVIDER=claude` in `.env`.
+1. Create `asset_pipeline/Art Snipe/providers/vision/claude.py` implementing `VisionProvider`.
+2. Register it in `asset_pipeline/Art Snipe/providers/factory.py`.
+3. Set `Art Snipe_VISION_PROVIDER=claude` in `.env`.
 
 No other code changes required.
 
@@ -222,7 +222,7 @@ Add it to `.env`, and verify the key has billing enabled at https://platform.ope
 Yes — the first `make up` builds the SAM image which downloads the model and PyTorch CPU (~2 GB total). Subsequent starts are instant.
 
 **`segment` produces poor cutouts on detailed assets**
-Try the larger SAM model: set `ARTPIPE_SAM_MODEL=facebook/sam-vit-large` in `.env` and rebuild with `docker compose build sam`. ~900 MB instead of ~375 MB.
+Try the larger SAM model: set `Art Snipe_SAM_MODEL=facebook/sam-vit-large` in `.env` and rebuild with `docker compose build sam`. ~900 MB instead of ~375 MB.
 
 **`generate` produces visually inconsistent assets**
 Tighten the `style` field in the manifest (or pass `--style "..."` to `make analyze`). The style is prepended to every per-asset prompt during generation.

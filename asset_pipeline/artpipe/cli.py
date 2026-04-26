@@ -390,7 +390,7 @@ def export_assets() -> None:
 def run(mockup: str, style: str, candidates: int, quality: str | None) -> None:
     """End-to-end: analyze → segment → generate.
 
-    After this, open http://localhost:3000 to approve candidates, then:
+    After this, open http://localhost:8473 to approve candidates, then:
     artpipe variants && artpipe validate && artpipe export
     """
     quality = quality or _gen_quality()
@@ -411,7 +411,7 @@ def run(mockup: str, style: str, candidates: int, quality: str | None) -> None:
     _finish(
         run_stats,
         next_steps=(
-            "[bold cyan]Next:[/bold cyan] open [link=http://localhost:3000]http://localhost:3000[/link] "
+            "[bold cyan]Next:[/bold cyan] open [link=http://localhost:8473]http://localhost:8473[/link] "
             "to approve candidates,\n"
             "      then run [bold]artpipe variants && artpipe validate && artpipe export[/bold]"
         ),

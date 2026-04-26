@@ -15,4 +15,4 @@ COPY templates /app/templates
 ENV WORKSPACE=/app/workspace
 ENV EXPORT_DIR=/app/game_assets
 
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8473"]

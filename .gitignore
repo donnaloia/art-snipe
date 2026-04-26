@@ -1,8 +1,11 @@
 models/
 workspace/generated/
 workspace/references/
+workspace/approved/
+workspace/rejected/
 workspace/logs/
-workspace/analysis/*.tmp
+workspace/analysis/
+workspace/manifests/asset_manifest.json
 __pycache__/
 *.pyc
 .DS_Store
