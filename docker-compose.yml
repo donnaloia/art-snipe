@@ -3,26 +3,25 @@ services:
     build:
       context: ./asset_pipeline
       dockerfile: Dockerfile
-    working_dir: /app
+    working_dir: /repo
     volumes:
       - ./:/repo
       - ./workspace:/repo/workspace
       - ./mockups:/repo/mockups
-      - ./godot_project/assets:/repo/godot_project/assets
+      - ./game_assets:/repo/game_assets
     environment:
-      - ARTPipe_REPO=/repo
-      - COMFYUI_URL=http://comfyui:8188
+      - ARTPIPE_REPO=/repo
+      - ARTPIPE_VISION_PROVIDER=${ARTPIPE_VISION_PROVIDER:-gemini}
+      - ARTPIPE_IMAGE_GEN_PROVIDER=${ARTPIPE_IMAGE_GEN_PROVIDER:-openai}
+      - ARTPIPE_IMAGE_QUALITY=${ARTPIPE_IMAGE_QUALITY:-medium}
+      - ARTPIPE_PROJECT_NAME=${ARTPIPE_PROJECT_NAME:-my-game}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - SAM_URL=http://sam:8001
       - REMBG_URL=http://rembg:7000
-
-  comfyui:
-    image: ghcr.io/ai-dock/comfyui:latest
-    ports:
-      - "8188:8188"
-    volumes:
-      - ./models:/models
-      - ./workspace:/workspace
-    profiles: ["gpu"]
+    depends_on:
+      - sam
+      - rembg
 
   sam:
     build:
@@ -33,6 +32,14 @@ services:
     volumes:
       - ./models:/models
       - ./workspace:/workspace
+      - ./mockups:/mockups
+    environment:
+      - ARTPIPE_SAM_MODEL=${ARTPIPE_SAM_MODEL:-facebook/sam-vit-base}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
 
   rembg:
     image: danielgatis/rembg:latest
@@ -48,4 +55,7 @@ services:
       - "3000:3000"
     volumes:
       - ./workspace:/app/workspace
-      - ./godot_project/assets:/app/godot_assets
+      - ./game_assets:/app/game_assets
+    environment:
+      - WORKSPACE=/app/workspace
+      - EXPORT_DIR=/app/game_assets

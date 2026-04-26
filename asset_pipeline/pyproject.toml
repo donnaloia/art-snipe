@@ -1,9 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "artpipe"
 version = "0.1.0"
-description = "AI-assisted game asset pipeline scaffold for Godot"
+description = "AI-driven 2D game asset pipeline"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.scripts]
 artpipe = "artpipe.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["artpipe*"]

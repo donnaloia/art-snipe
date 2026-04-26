@@ -1,12 +1,14 @@
 MOCKUP ?= mockups/gameplay.png
 SERVICE ?= artpipe-cli
 
-.PHONY: init up down logs shell run analyze manifest segment generate variants validate review export clean zip
+HOST_DIRS := mockups workspace/analysis workspace/manifests workspace/references workspace/generated workspace/approved workspace/rejected workspace/logs game_assets models
 
-init:
-	mkdir -p mockups workspace/analysis workspace/manifests workspace/references workspace/generated workspace/approved workspace/rejected workspace/logs godot_project/assets/{ui,cards,icons,enemies,backgrounds} models
+.PHONY: _dirs up down logs shell run analyze manifest segment generate variants validate review export clean zip
 
-up:
+_dirs:
+	@mkdir -p $(HOST_DIRS)
+
+up: | _dirs
 	docker compose up -d
 
 down:
@@ -15,38 +17,38 @@ down:
 logs:
 	docker compose logs -f
 
-shell:
+shell: | _dirs
 	docker compose run --rm $(SERVICE) bash
 
-run:
+run: | _dirs
 	docker compose run --rm $(SERVICE) artpipe run --mockup $(MOCKUP)
 
-analyze:
+analyze: | _dirs
 	docker compose run --rm $(SERVICE) artpipe analyze --mockup $(MOCKUP)
 
-manifest:
+manifest: | _dirs
 	docker compose run --rm $(SERVICE) artpipe manifest
 
-segment:
+segment: | _dirs
 	docker compose run --rm $(SERVICE) artpipe segment
 
-generate:
+generate: | _dirs
 	docker compose run --rm $(SERVICE) artpipe generate
 
-variants:
+variants: | _dirs
 	docker compose run --rm $(SERVICE) artpipe variants
 
-validate:
+validate: | _dirs
 	docker compose run --rm $(SERVICE) artpipe validate
 
-review:
+review: | _dirs
 	docker compose up review-ui
 
-export:
+export: | _dirs
 	docker compose run --rm $(SERVICE) artpipe export
 
 clean:
 	rm -rf workspace/analysis/* workspace/references/* workspace/generated/* workspace/approved/* workspace/rejected/* workspace/logs/*
 
 zip:
-	cd .. && zip -r artpipe-godot-ai.zip artpipe-godot-ai -x 'artpipe-godot-ai/models/*' -x 'artpipe-godot-ai/.git/*'
+	cd .. && zip -r artpipe.zip art-snipe -x 'art-snipe/models/*' -x 'art-snipe/.git/*'

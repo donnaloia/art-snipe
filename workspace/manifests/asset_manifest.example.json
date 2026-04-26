@@ -1,16 +1,18 @@
 {
-  "project": "go-fish-roguelike-deckbuilder",
-  "style": "dark macabre pixel-inspired gothic card battler",
+  "project": "my-game",
+  "style": "Hand-painted fantasy, muted natural palette, painterly edges.",
+  "mockup": "/repo/mockups/example.png",
   "assets": [
     {
-      "id": "button_end_turn",
+      "id": "button_primary",
       "category": "ui",
       "type": "button",
       "size": [320, 96],
+      "bbox": [820, 940, 320, 96],
       "variants": ["normal", "hover", "pressed", "disabled"],
       "needs_text": false,
-      "prompt": "Ornate gothic end turn button frame, transparent background, no text.",
-      "notes": "Text should be rendered in Godot."
+      "prompt": "Primary action button frame, hand-painted fantasy style, muted natural palette, painterly edges, transparent background, no text.",
+      "notes": "Text rendered by the engine, not baked in."
     }
   ]
 }

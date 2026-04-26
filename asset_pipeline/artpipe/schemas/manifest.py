@@ -1,19 +1,20 @@
 from pydantic import BaseModel, Field
-from typing import Literal
 
-AssetCategory = Literal["ui", "cards", "icons", "enemies", "backgrounds"]
 
 class AssetSpec(BaseModel):
     id: str
-    category: AssetCategory
+    category: str
     type: str
     size: tuple[int, int]
-    variants: list[str] = Field(default_factory=list)
+    bbox: tuple[int, int, int, int] | None = None
+    variants: list[str] = Field(default_factory=lambda: ["normal"])
     needs_text: bool = False
     prompt: str = ""
     notes: str = ""
 
+
 class AssetManifest(BaseModel):
-    project: str = "go-fish-roguelike-deckbuilder"
-    style: str = "dark macabre pixel-inspired"
+    project: str = "my-game"
+    style: str = ""
+    mockup: str = ""
     assets: list[AssetSpec]

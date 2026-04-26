@@ -1,0 +1,49 @@
+{% extends "_base.html" %}
+{% block title %}{{ asset.id }}{% endblock %}
+{% block subtitle %}<a href="/">&larr; all assets</a> &middot; {{ asset.category }} &middot; {{ asset.size[0] }}x{{ asset.size[1] }}{% endblock %}
+{% block content %}
+  <h2 style="margin-top:0;">{{ asset.id }}</h2>
+  <p style="color: var(--muted); margin-top: -6px;"><code>{{ asset.prompt }}</code></p>
+
+  {% if reference %}
+  <div class="reference">
+    <h4>Reference (from mockup)</h4>
+    <img src="/img/reference/{{ asset.category }}/{{ reference }}" style="max-height: 220px;" />
+  </div>
+  {% endif %}
+
+  {% if approved_exists %}
+  <div class="reference" style="border-color: var(--good);">
+    <h4 style="color: var(--good);">Currently approved</h4>
+    <img src="/img/approved/{{ asset.category }}/{{ asset.id }}_normal.png" style="max-height: 240px;" />
+    <form action="/asset/{{ asset.id }}/unapprove" method="post" style="margin-top: 10px;">
+      <button class="reject" type="submit" style="max-width: 200px;">Unapprove</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if candidates %}
+    <h3>Candidates</h3>
+    <div class="candidate-grid">
+      {% for filename in candidates %}
+        <div class="candidate">
+          <img src="/img/candidate/{{ asset.category }}/{{ asset.id }}/{{ filename }}" />
+          <div class="label">{{ filename }}</div>
+          <div class="actions">
+            <form action="/asset/{{ asset.id }}/approve/{{ filename }}" method="post">
+              <button class="approve" type="submit">Approve</button>
+            </form>
+            <form action="/asset/{{ asset.id }}/reject/{{ filename }}" method="post">
+              <button class="reject" type="submit">Reject</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <p>No candidates yet for this asset.</p>
+      <p>Run <code>artpipe generate</code> to produce them.</p>
+    </div>
+  {% endif %}
+{% endblock %}

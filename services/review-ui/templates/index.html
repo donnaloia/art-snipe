@@ -1,0 +1,32 @@
+{% extends "_base.html" %}
+{% block title %}{{ project }} — assets{% endblock %}
+{% block subtitle %}{{ project }} &middot; {{ style }}{% endblock %}
+{% block content %}
+{% if total == 0 %}
+  <div class="empty">
+    <p>No manifest found.</p>
+    <p>Run <code>make run MOCKUP=mockups/yourfile.png</code> to populate it.</p>
+  </div>
+{% else %}
+  <div class="summary">
+    <div class="stat"><b>{{ total }}</b><span>assets in manifest</span></div>
+    <div class="stat"><b>{{ approved_count }}</b><span>approved</span></div>
+    <div class="stat"><b>{{ total - approved_count }}</b><span>pending</span></div>
+  </div>
+  <div class="grid">
+    {% for asset in assets %}
+      <a href="/asset/{{ asset.id }}" style="color: inherit;">
+        <div class="card">
+          <h3>{{ asset.id }}</h3>
+          <div class="sub">{{ asset.category }} &middot; {{ asset.type }} &middot; {{ asset.size[0] }}x{{ asset.size[1] }}</div>
+          {% if asset.approved %}
+            <span class="badge approved">approved</span>
+          {% else %}
+            <span class="badge pending">{{ asset.candidate_count }} candidates</span>
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
