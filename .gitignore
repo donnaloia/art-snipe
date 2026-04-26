@@ -1,0 +1,9 @@
+models/
+workspace/generated/
+workspace/references/
+workspace/logs/
+workspace/analysis/*.tmp
+__pycache__/
+*.pyc
+.DS_Store
+.env
