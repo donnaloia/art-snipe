@@ -51,7 +51,7 @@ class OpenAIImageGenProvider(ImageGenProvider):
         if not api_key:
             raise RuntimeError(
                 "OPENAI_API_KEY is not set. Get a key at "
-                "https://platform.openai.com/api-keys and add it to .env"
+                "https://platform.openai.com/api-keys and add it to docker-compose.yml"
             )
         try:
             from openai import OpenAI

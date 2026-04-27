@@ -1,6 +1,6 @@
 # Art Snipe
 
-Art Snipe takes a single gameplay mockup and produces a complete, organized set of 2D game-ready asset candidates. You sketch the screen once; the pipeline identifies every distinct asset, generates clean reference cutouts of each, produces multiple stylistically-consistent candidates per asset, lets you approve the ones you like in a local web UI, then auto-generates the missing UI states (hover, pressed, disabled, etc.) and exports everything in the right sizes to a folder your engine can import.
+Art Snipe takes a single gameplay mockup and produces a complete, organized set of 2D game-ready asset candidates. Provide one mockup of the screen; the pipeline identifies every distinct asset, generates clean reference cutouts of each, produces multiple stylistically-consistent candidates per asset, lets you approve the ones you like in a local web UI, then auto-generates the missing UI states (hover, pressed, disabled, etc.) and exports everything in the right sizes to a folder your engine can import.
 
 ## Why this exists
 
@@ -22,7 +22,7 @@ Art Snipe is built for the parts of the workflow where speed and consistency mat
 - **Game jams and prototypes.** Most of a 48-hour jam isn't spent on art. Art Snipe can hand you a coherent visual layer in the first hour so you can spend the rest on gameplay.
 - **Solo devs and small studios.** When you can't afford a full art team, Art Snipe gets you to a shippable visual standard for the 80% of assets that are functional UI/icons/states, so an actual artist's time can go toward the 20% that defines your game's look (key art, hero characters, signature visuals).
 
-What it doesn't replace: a real art director, original IP design, or signature concept art. Art Snipe fills in the asset volume around a vision you've already sketched. The mockup you feed it is where the creative work happens; the pipeline turns that vision into deliverable files.
+What it doesn't replace: a real art director, original IP design, or signature concept art. Art Snipe fills in the asset volume around a vision you've already established. The mockup you feed it is where the creative work happens; the pipeline turns that vision into deliverable files.
 
 ## How it works
 
@@ -103,11 +103,24 @@ No GPU required. Works on Mac, Linux, and Windows. Steps 1, 3, and the non-UI pa
 
 ## Setup
 
-```bash
-cp .env.example .env
-# edit .env and fill in GEMINI_API_KEY and OPENAI_API_KEY
-make up
-```
+1. Open `docker-compose.yml` and fill in the two API keys near the top of the `artpipe-cli` service:
+
+   ```yaml
+   GEMINI_API_KEY: "your-gemini-key-here"
+   OPENAI_API_KEY: "your-openai-key-here"
+   ```
+
+2. (Optional but recommended) Stop git from tracking your edits to that file so your keys don't leak into commits:
+
+   ```bash
+   git update-index --skip-worktree docker-compose.yml
+   ```
+
+3. Bring everything up:
+
+   ```bash
+   make up
+   ```
 
 First `make up` will take ~5–10 minutes because the SAM service downloads its model (~375 MB) and PyTorch CPU into the container image. Subsequent runs are instant.
 
@@ -145,7 +158,7 @@ make export      # copy approved assets into game_assets/
 
 ```text
 asset_pipeline/         Python CLI orchestration code
-  Art Snipe/providers/    Pluggable vision + image gen providers
+  artpipe/providers/    Pluggable vision + image gen providers
 services/
   sam/                  Local SAM segmentation service (FastAPI)
   review-ui/            Local approve/reject web UI (FastAPI + Jinja2)
@@ -182,20 +195,22 @@ docs/                   Pipeline design notes
 
 ## Configuration
 
-All configuration is via environment variables, set in `.env` or your shell. See `.env.example` for the complete list. The most useful overrides:
+All configuration lives in `docker-compose.yml` under the `artpipe-cli` service's `environment` block. The most useful knobs:
 
-- `Art Snipe_IMAGE_QUALITY=low|medium|high` — image gen quality. Low is ~$0.011/image, medium ~$0.042, high ~$0.167. Default: medium.
-- `Art Snipe_PROJECT_NAME=...` — project label written into the manifest.
-- `Art Snipe_GEMINI_MODEL=gemini-2.5-flash` — switch to a different Gemini model (e.g. `gemini-2.5-pro`).
-- `Art Snipe_SAM_MODEL=facebook/sam-vit-base` — swap in a larger SAM model (e.g. `facebook/sam-vit-large`).
+- `ARTPIPE_IMAGE_QUALITY: low|medium|high` — image gen quality. Low is ~$0.011/image, medium ~$0.042, high ~$0.167. Default: medium.
+- `ARTPIPE_PROJECT_NAME: ...` — project label written into the manifest.
+- `ARTPIPE_GEMINI_MODEL: gemini-2.5-flash` — switch to a different Gemini model (e.g. `gemini-2.5-pro`).
+- `ARTPIPE_SAM_MODEL: facebook/sam-vit-base` — swap in a larger SAM model (e.g. `facebook/sam-vit-large`). This one lives under the `sam` service, not `artpipe-cli`.
+
+After changing values, run `make down && make up` to rebuild.
 
 ## Swapping Providers
 
-The pipeline talks to vision and image-gen providers through abstract interfaces in `asset_pipeline/Art Snipe/providers/`. To add (for example) a Claude vision provider:
+The pipeline talks to vision and image-gen providers through abstract interfaces in `asset_pipeline/artpipe/providers/`. To add (for example) a Claude vision provider:
 
-1. Create `asset_pipeline/Art Snipe/providers/vision/claude.py` implementing `VisionProvider`.
-2. Register it in `asset_pipeline/Art Snipe/providers/factory.py`.
-3. Set `Art Snipe_VISION_PROVIDER=claude` in `.env`.
+1. Create `asset_pipeline/artpipe/providers/vision/claude.py` implementing `VisionProvider`.
+2. Register it in `asset_pipeline/artpipe/providers/factory.py`.
+3. Set `ARTPIPE_VISION_PROVIDER: claude` in `docker-compose.yml`.
 
 No other code changes required.
 
@@ -213,16 +228,19 @@ A typical mockup with 30 assets costs **~$4 to run end-to-end** at medium qualit
 ## Troubleshooting
 
 **`GEMINI_API_KEY is not set`**
-Add it to `.env` (free at https://aistudio.google.com/apikey).
+Add it to `docker-compose.yml` under the `artpipe-cli` service (free at https://aistudio.google.com/apikey), then `make down && make up`.
 
 **`OPENAI_API_KEY is not set`**
-Add it to `.env`, and verify the key has billing enabled at https://platform.openai.com/account/billing.
+Add it to `docker-compose.yml` under the `artpipe-cli` service, then `make down && make up`. Verify the key has billing enabled at https://platform.openai.com/account/billing.
 
 **SAM service is slow to start the first time**
 Yes — the first `make up` builds the SAM image which downloads the model and PyTorch CPU (~2 GB total). Subsequent starts are instant.
 
 **`segment` produces poor cutouts on detailed assets**
-Try the larger SAM model: set `Art Snipe_SAM_MODEL=facebook/sam-vit-large` in `.env` and rebuild with `docker compose build sam`. ~900 MB instead of ~375 MB.
+Try the larger SAM model: set `ARTPIPE_SAM_MODEL: facebook/sam-vit-large` under the `sam` service in `docker-compose.yml` and rebuild with `docker compose build sam`. ~900 MB instead of ~375 MB.
 
 **`generate` produces visually inconsistent assets**
 Tighten the `style` field in the manifest (or pass `--style "..."` to `make analyze`). The style is prepended to every per-asset prompt during generation.
+
+**I accidentally committed my API keys**
+Run `git rm --cached docker-compose.yml`, rotate both keys at the provider dashboards, paste the new keys into `docker-compose.yml`, then run `git update-index --skip-worktree docker-compose.yml` so it doesn't happen again.

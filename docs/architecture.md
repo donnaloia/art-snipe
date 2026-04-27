@@ -15,7 +15,7 @@ rembg               danielgatis/rembg image, used as a background-removal
                     fallback when SAM is unavailable or for additional
                     cleanup. Endpoint: POST /api/remove
 
-review-ui           FastAPI + Jinja2 web app on port 3000 for approving or
+review-ui           FastAPI + Jinja2 web app on port 8473 for approving or
                     rejecting candidate generations.
 ```
 
@@ -40,7 +40,7 @@ mockups/foo.png
               ├─► image gen provider (OpenAI API, with reference)
               └─► workspace/generated/<category>/<id>/<id>_v01.png ...
                     │
-                    │  human review at http://localhost:3000
+                    │  human review at http://localhost:8473
                     ▼
                     └─► workspace/approved/<category>/<id>_normal.png
                           │
@@ -69,4 +69,4 @@ Adding a new provider is purely additive: implement the interface, register in t
 
 ## Environment Variables
 
-See `.env.example` at the repository root. The `docker-compose.yml` passes all relevant variables through to the artpipe-cli container.
+All variables are set directly in `docker-compose.yml` under each service's `environment` block. `artpipe-cli` consumes the API keys and provider-selection variables; `sam` consumes `ARTPIPE_SAM_MODEL`; `review-ui` consumes `WORKSPACE` and `EXPORT_DIR`.

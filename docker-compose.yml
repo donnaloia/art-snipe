@@ -1,3 +1,11 @@
+# All Art Snipe configuration lives in this file. Fill in the two API keys
+# below before your first `make up`. To keep your keys out of git after
+# editing, run once:
+#
+#   git update-index --skip-worktree docker-compose.yml
+#
+# (To resume tracking changes later: `git update-index --no-skip-worktree docker-compose.yml`.)
+
 services:
   artpipe-cli:
     build:
@@ -10,15 +18,24 @@ services:
       - ./mockups:/repo/mockups
       - ./game_assets:/repo/game_assets
     environment:
-      - ARTPIPE_REPO=/repo
-      - ARTPIPE_VISION_PROVIDER=${ARTPIPE_VISION_PROVIDER:-gemini}
-      - ARTPIPE_IMAGE_GEN_PROVIDER=${ARTPIPE_IMAGE_GEN_PROVIDER:-openai}
-      - ARTPIPE_IMAGE_QUALITY=${ARTPIPE_IMAGE_QUALITY:-medium}
-      - ARTPIPE_PROJECT_NAME=${ARTPIPE_PROJECT_NAME:-my-game}
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - SAM_URL=http://sam:8001
-      - REMBG_URL=http://rembg:7000
+      # ─── Required ─────────────────────────────────────────────────────────
+      # Free tier: https://aistudio.google.com/apikey
+      GEMINI_API_KEY: ""
+      # Paid: https://platform.openai.com/api-keys (~$0.04/image at medium quality)
+      OPENAI_API_KEY: ""
+
+      # ─── Optional overrides ───────────────────────────────────────────────
+      ARTPIPE_VISION_PROVIDER: gemini
+      ARTPIPE_IMAGE_GEN_PROVIDER: openai
+      ARTPIPE_IMAGE_QUALITY: medium      # low | medium | high
+      ARTPIPE_PROJECT_NAME: my-game
+      # ARTPIPE_GEMINI_MODEL: gemini-2.5-flash
+      # ARTPIPE_OPENAI_IMAGE_MODEL: gpt-image-1
+
+      # ─── Internal (don't change unless you know what you're doing) ────────
+      ARTPIPE_REPO: /repo
+      SAM_URL: http://sam:8001
+      REMBG_URL: http://rembg:7000
     depends_on:
       - sam
       - rembg
@@ -34,7 +51,7 @@ services:
       - ./workspace:/workspace
       - ./mockups:/mockups
     environment:
-      - ARTPIPE_SAM_MODEL=${ARTPIPE_SAM_MODEL:-facebook/sam-vit-base}
+      ARTPIPE_SAM_MODEL: facebook/sam-vit-base
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
       interval: 10s
@@ -57,5 +74,5 @@ services:
       - ./workspace:/app/workspace
       - ./game_assets:/app/game_assets
     environment:
-      - WORKSPACE=/app/workspace
-      - EXPORT_DIR=/app/game_assets
+      WORKSPACE: /app/workspace
+      EXPORT_DIR: /app/game_assets

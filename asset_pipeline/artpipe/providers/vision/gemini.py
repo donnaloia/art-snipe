@@ -88,7 +88,7 @@ class GeminiVisionProvider(VisionProvider):
         if not api_key:
             raise RuntimeError(
                 "GEMINI_API_KEY is not set. Get a free key at "
-                "https://aistudio.google.com/apikey and add it to .env"
+                "https://aistudio.google.com/apikey and add it to docker-compose.yml"
             )
         try:
             from google import genai

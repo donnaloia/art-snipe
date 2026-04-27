@@ -7,7 +7,6 @@ import sys
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv
 from PIL import Image
 
 from artpipe.config import (
@@ -26,9 +25,6 @@ from artpipe.variants import (
     variant_is_deterministic,
     variant_prompt_suffix,
 )
-
-load_dotenv(REPO_ROOT / ".env", override=False)
-
 
 MANIFEST_PATH = MANIFEST_DIR / "asset_manifest.json"
 ANALYSIS_PATH = ANALYSIS_DIR / "screen_analysis.json"
